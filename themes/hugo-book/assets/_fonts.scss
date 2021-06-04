@@ -1,0 +1,30 @@
+/* roboto-regular - latin */
+@font-face {
+  font-family: 'Segoe UI';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+/* roboto-700 - latin */
+@font-face {
+  font-family: 'Segoe UI';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* roboto-mono-regular - latin */
+@font-face {
+font-family: 'monospace';
+    font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+}
+
+code {
+  font-family: 'Segoe UI Mono', monospace;
+}

@@ -1,0 +1,119 @@
+<div id="canvas">{{.Inner}}</div> 
+
+<style>.diagram-note {
+  background-color: green; /* color elements as green */
+  opacity: 0.4;
+  pointer-events: none; /* no pointer events, allows clicking through onto the element */
+}
+html, body, #canvas {
+        height: 200%;
+        padding: 0;
+        margin: 0;
+      }
+      div#canvas {
+        height: 500px;
+      }
+      </style>
+
+<!--script src="viewer.js"></script-->
+<script src="https://unpkg.com/bpmn-js@8.6.0/dist/bpmn-navigated-viewer.development.js"></script>
+<script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/bpmn-js@8.6.0/dist/assets/diagram-js.css" />
+  <script>
+
+    var diagramUrl = document.getElementById("canvas").innerText
+    
+    // viewer instance
+    var bpmnViewer = new BpmnJS({
+      container: '#canvas',
+      //disables movement in canvas
+      additionalModules: [
+        {
+          moveCanvas: [ 'value', null ],
+        }
+      ]
+    });
+
+    /**
+     * Open diagram in our viewer instance.
+     *
+     * @param {String} bpmnXML diagram to display
+     */
+    async function openDiagram(bpmnXML) {
+
+      // import diagram
+      try {
+
+        await bpmnViewer.importXML(bpmnXML).then(function(){
+          console.log("hier")
+          var eventBus = bpmnViewer.get('eventBus');
+          console.log(eventBus)
+          var events = [
+            //'element.hover',
+            //'element.out',
+            'element.click',
+            //'element.dblclick',
+            //'element.mousedown',
+            //'element.mouseup'
+          ];console.log(events)
+      
+          events.forEach(function(event) {
+
+          eventBus.on(event, function(e) {
+            // e.element = the model element
+            // e.gfx = the graphical element
+
+            console.log(event, 'on', e.element);
+            
+
+            //var elementRegistry = bpmnViewer.get(e.element);
+            console.log(e.element.label)
+
+            //Label name
+            console.log(e.element.businessObject.name)
+
+//tooltips aus console.log(e.element.businessObject.name)
+
+            //var elementRegistry = bpmnViewer.get(e.element.id)
+          // console.log(elementRegistry)
+          });
+        });
+      }).catch(function(err) {
+
+        console.error('failed to load diagram');
+        console.error(err);
+
+        return log('failed to load diagram', err);
+        });
+
+        // access viewer components
+        var canvas = bpmnViewer.get('canvas');
+        var overlays = bpmnViewer.get('overlays');
+
+
+        // zoom to fit full viewport
+        var k = canvas.zoom('fit-viewport');
+
+       // canvas.zoom(1);
+
+        // attach an overlay to a node
+        overlays.add('SCAN_OK', 'note', {
+          position: {
+            bottom: 100,
+            right: 100
+          },
+          html: '<div class="diagram-note">Mixed up the labels?</div>'
+        });
+
+        // add marker
+        canvas.addMarker('SCAN_OK', 'needs-discussion');
+      } catch (err) {
+
+        console.error('could not import BPMN 2.0 diagram', err);
+      }
+    }
+
+
+    // load external diagram file via AJAX and open it
+    $.get(diagramUrl, openDiagram, 'text');
+  </script>
