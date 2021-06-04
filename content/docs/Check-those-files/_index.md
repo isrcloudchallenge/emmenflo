@@ -7,5 +7,6 @@ bookCollapseSection: true
 
 # This is the First File
 
-{{<bpmnviewer>}}diagram_1.bpmn{{</bpmnviewer>}}
+* [Diagram 1](diagram_1)
+* [Diagram 2](diagram_2)
 
