@@ -9,7 +9,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0      
-      - name: 
+      - name: get the latest file
         run: |
         ls -lrt
       - name: Setup hugo
