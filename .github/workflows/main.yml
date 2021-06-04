@@ -9,10 +9,10 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0      
-      - name: get the latest file
+      - name: get the latest change
         run: |
-          ls -lrt
           echo $(date +"%d.%m.%Y %H:%M:%S"; git log -n 1 --skip=1 | grep Author | sed -e s/^Author:\ /\ /; git diff $(git log -n 1 --skip=1 | grep "commit" | awk -F' '  '{print $2}') | grep '^[+-][+-][+-]' | head -1 | awk -F' ' '{print $2}' | sed -e s/^[ab].//)
+          
       - name: Setup hugo
         uses: peaceiris/actions-hugo@v2
         with:

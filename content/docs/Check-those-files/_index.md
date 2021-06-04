@@ -7,3 +7,5 @@ bookCollapseSection: true
 
 # This is the First File
 
+{{<bpmnviewer>}}diagram_1.bpmn{{</bpmnviewer>}}
+
