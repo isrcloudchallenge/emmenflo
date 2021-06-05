@@ -1,8 +1,14 @@
 name: CommitWebSite
 on: push
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        build:
+          - '1'
+          - '2'
+          - '3'
     steps:
       - name: Git checkout
         uses: actions/checkout@v2
@@ -23,15 +29,27 @@ jobs:
           hugo-version: "0.68.3"      
       - name: Build
         run: hugo --minify      
+      - name: upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: public${{ matrix.build }}
+          path: public
+
+  deploy:
+    runs-on: ubuntu-18.04
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          path: artifacts
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.HUGO }}
           external_repository: isrcloudchallenge/emmenflo.github.io
-          publish_dir: ./public
+          publish_dir: ./artifacts
           keep_files: true
           user_name: isrcloudchallenge
           user_email: martin.jahr@isr.de
           publish_branch: main
           cname: emmenflo.selfscrum.org
-          force_orphan: true
