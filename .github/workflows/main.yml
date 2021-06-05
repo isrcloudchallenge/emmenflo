@@ -12,8 +12,11 @@ jobs:
       - name: get the latest change
         run: |
           mkdir -p content/docs/diagrams
-          printf "\n---\ntitle: Alle Diagramme\ndate: 2017-10-17T15:26:15Z\nbookToc: false\nbookCollapseSection: true\n---\n\n# Alle Diagramme\nLetzte Änderung: $(date +'%d.%m.%Y %H:%M:%S')\n\n" > content/docs/diagrams/_index.md
+          printf "\n---\ntitle: Alle Diagramme\ndate: 2017-10-17T15:26:15Z\nbookToc: false\nbookCollapseSection: true\n---\n\n# Alle Diagramme\n\n" > content/docs/diagrams/_index.md
           for i in $(ls -1 content/diagrams) ; do printf "* [$i](./$i)\n" >> content/docs/diagrams/_index.md ; mkdir -p content/docs/diagrams/$i ; cp content/diagrams/$i content/docs/diagrams/$i ; printf "\n---\ntitle: $i\ndate: 2017-10-17T15:26:15Z\nbookToc: false\n---\n\n# $i\n\n{{<bpmnviewer>}}$i{{</bpmnviewer>}}\n" > content/docs/diagrams/$i/_index.md ; done
+          mkdir -p content/docs/images
+          printf "\n---\ntitle: Alle Bilder\ndate: 2017-10-17T15:26:15Z\nbookToc: false\nbookCollapseSection: true\n---\n\n# Alle Bilder\n\n" > content/docs/images/_index.md
+          for i in $(ls -1 content/images) ; do printf "* [$i](./$i)\n" >> content/docs/images/_index.md ; mkdir -p content/docs/images/$i ; cp content/images/$i content/docs/images/$i ; printf "\n---\ntitle: $i\ndate: 2017-10-17T15:26:15Z\nbookToc: false\n---\n\n# $i\n\n![]($i)\n" > content/docs/images/$i/_index.md ; done
       - name: Setup hugo
         uses: peaceiris/actions-hugo@v2
         with:
