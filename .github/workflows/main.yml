@@ -34,3 +34,4 @@ jobs:
           user_email: martin.jahr@isr.de
           publish_branch: main
           cname: emmenflo.selfscrum.org
+          force_orphan: true
