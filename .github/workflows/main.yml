@@ -11,9 +11,8 @@ jobs:
           fetch-depth: 0      
       - name: get the latest change
         run: |
-          echo $(date +"%d.%m.%Y %H:%M:%S"; git log -n 1 --skip=1 | grep Author | sed -e s/^Author:\ /\ /; git diff $(git log -n 1 --skip=1 | grep "commit" | awk -F' '  '{print $2}') | grep '^[+-][+-][+-]' | head -1 | awk -F' ' '{print $2}' | sed -e s/^[ab].//)
           mkdir -p content/docs/diagrams
-          printf "\n---\ntitle: Alle Diagramme\ndate: 2017-10-17T15:26:15Z\nbookToc: false\nbookCollapseSection: true\n---\n\n# Alle Diagramme\n\n" > content/docs/diagrams/_index.md
+          printf "\n---\ntitle: Alle Diagramme\ndate: 2017-10-17T15:26:15Z\nbookToc: false\nbookCollapseSection: true\n---\n\n# Alle Diagramme\n\nLetzte Änderung: $(date +'%d.%m.%Y %H:%M:%S'; git log -n 1 --skip=1 | grep Author | sed -e s/^Author:\ /\ /; git diff $(git log -n 1 --skip=1 | grep 'commit' | awk -F' '  '{print $2}') | grep '^[+-][+-][+-]' | head -1 | awk -F' ' '{print $2}' | sed -e s/^[ab].//)\n\n" > content/docs/diagrams/_index.md
           for i in $(ls -1 content/diagrams) ; do printf "* [$i](./$i)\n" >> content/docs/diagrams/_index.md ; mkdir -p content/docs/diagrams/$i ; cp content/diagrams/$i content/docs/diagrams/$i ; printf "\n---\ntitle: $i\ndate: 2017-10-17T15:26:15Z\nbookToc: false\n---\n\n# $i\n\n{{<bpmnviewer>}}$i{{</bpmnviewer>}}\n" > content/docs/diagrams/$i/_index.md ; done
       - name: Setup hugo
         uses: peaceiris/actions-hugo@v2
