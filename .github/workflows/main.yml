@@ -41,8 +41,8 @@ jobs:
         with:
           personal_token: ${{ secrets.HUGO }}
           external_repository: isrcloudchallenge/emmenflo.github.io
-          publish_dir: ./artifacts
-          keep_files: true
+          publish_dir: ./artifacts/public
+          keep_files: false
           user_name: isrcloudchallenge
           user_email: martin.jahr@isr.de
           publish_branch: main
