@@ -1,7 +1,7 @@
 name: CommitWebSite
 on: push
 jobs:
-  prepare:
+  build:
     runs-on: ubuntu-18.04
     steps:
       - name: Git checkout
@@ -17,19 +17,6 @@ jobs:
           mkdir -p content/docs/images
           printf "\n---\ntitle: Alle Bilder\ndate: 2017-10-17T15:26:15Z\nbookToc: false\nbookCollapseSection: true\n---\n\n# Alle Bilder\n\n" > content/docs/images/_index.md
           for i in $(ls -1 content/images) ; do printf "* [$i](./$i)\n" >> content/docs/images/_index.md ; mkdir -p content/docs/images/$i ; cp content/images/$i content/docs/images/$i ; printf "\n---\ntitle: $i\ndate: 2017-10-17T15:26:15Z\nbookToc: false\n---\n\n# $i\n\n![]($i)\n" > content/docs/images/$i/_index.md ; done
-      - name: upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: content
-          path: content
-  build:
-    runs-on: ubuntu-18.04
-    needs: prepare
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: content
-          path: content
       - name: Setup hugo
         uses: peaceiris/actions-hugo@v2
         with:
@@ -48,7 +35,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: public
           path: artifacts
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
