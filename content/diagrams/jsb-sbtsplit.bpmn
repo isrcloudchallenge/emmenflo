@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_1dm4hw7" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.2.3">
+  <bpmn:collaboration id="Collaboration_05231wb">
+    <bpmn:participant id="Participant_047b12p" name="SBT split" processRef="sbtsplit" />
+  </bpmn:collaboration>
+  <bpmn:message id="Message_SPLITSUCCESS" name="SPLIT_SUCCESSFULL" />
+  <bpmn:process id="sbtsplit" name="sbtsplit" isExecutable="true">
+    <bpmn:extensionElements>
+      <camunda:properties>
+        <camunda:property name="isrInternalProcessName" value="sbtinboundsplit" />
+        <camunda:property name="isrSvnBuild" value="$Rev: 1$" />
+        <camunda:property name="isrWorkflowVersion" value="$Rev: 1$" />
+        <camunda:property name="isrWorkflowName" value="sbtinboundsplit" />
+      </camunda:properties>
+    </bpmn:extensionElements>
+    <bpmn:manualTask id="StartWF" name="startWF">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="isrTaskAnswer" />
+          <camunda:outputParameter name="delayCount">${0}</camunda:outputParameter>
+          <camunda:outputParameter name="delay">${false}</camunda:outputParameter>
+          <camunda:outputParameter name="errorCode" />
+          <camunda:outputParameter name="errorMessage" />
+          <camunda:outputParameter name="retry">${false}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1skr4kz</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_10k55nt</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1skr4kz" sourceRef="LaunchStepStartEvent" targetRef="StartWF" />
+    <bpmn:startEvent id="LaunchStepStartEvent" name="LaunchStep">
+      <bpmn:outgoing>SequenceFlow_1skr4kz</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="SendToSpliAPI" name="Send to Split API" default="SequenceFlow_01c8cys" camunda:asyncBefore="true" camunda:exclusive="false" camunda:type="external" camunda:topic="sbtSplitSendToSplitAPI">
+      <bpmn:incoming>SequenceFlow_08huc6r</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0vs2szd</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_14587kr</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_01c8cys</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_1al27bj">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="delayCount">${delayCount +1}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_14587kr</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_08huc6r</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1t9izkn">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT1M</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_14587kr" name="delay" sourceRef="SendToSpliAPI" targetRef="IntermediateCatchEvent_1al27bj">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${delay==true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_08huc6r" name="retry" sourceRef="IntermediateCatchEvent_1al27bj" targetRef="SendToSpliAPI" />
+    <bpmn:sequenceFlow id="SequenceFlow_01c8cys" sourceRef="SendToSpliAPI" targetRef="IntermediateCatchEvent_1e5r3hj" />
+    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_1e5r3hj" name="SPLIT_SUCCESSFULL">
+      <bpmn:incoming>SequenceFlow_01c8cys</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_13wco6m</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0g6z5jg" messageRef="Message_SPLITSUCCESS" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_13wco6m" sourceRef="IntermediateCatchEvent_1e5r3hj" targetRef="EndEvent_1tv26q8" />
+    <bpmn:serviceTask id="ServiceTask_0ggxh1d" name="Create Unclassified Document" camunda:asyncBefore="true" camunda:exclusive="false" camunda:type="external" camunda:topic="sbtSplitCreateUnclassifiedDocument">
+      <bpmn:incoming>SequenceFlow_10k55nt</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0vs2szd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_10k55nt" sourceRef="StartWF" targetRef="ServiceTask_0ggxh1d" />
+    <bpmn:sequenceFlow id="SequenceFlow_0vs2szd" sourceRef="ServiceTask_0ggxh1d" targetRef="SendToSpliAPI" />
+    <bpmn:endEvent id="EndEvent_1tv26q8" name="terminate">
+      <bpmn:incoming>SequenceFlow_13wco6m</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:association id="Association_09n189s" sourceRef="IntermediateCatchEvent_1al27bj" targetRef="TextAnnotation_0ktldb0" />
+    <bpmn:textAnnotation id="TextAnnotation_0ktldb0">
+      <bpmn:text>Delay for 5 minutes on HTTP 500</bpmn:text>
+    </bpmn:textAnnotation>
+  </bpmn:process>
+  <bpmn:message id="Message_0cca2vj" name="Message_3rlm8k8" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_05231wb">
+      <bpmndi:BPMNShape id="Participant_047b12p_di" bpmnElement="Participant_047b12p">
+        <dc:Bounds x="123" y="-23" width="1059" height="605" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="LaunchStepStartEvent">
+        <dc:Bounds x="174" y="119" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="165" y="162" width="59" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ManualTask_13ryqsj_di" bpmnElement="StartWF">
+        <dc:Bounds x="259" y="97" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1skr4kz_di" bpmnElement="SequenceFlow_1skr4kz">
+        <di:waypoint x="210" y="137" />
+        <di:waypoint x="259" y="137" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1vlwpsn_di" bpmnElement="SendToSpliAPI" bioc:stroke="#FB8C00" bioc:fill="#FFE0B2">
+        <dc:Bounds x="577" y="97" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_1al27bj_di" bpmnElement="IntermediateCatchEvent_1al27bj">
+        <dc:Bounds x="609" y="224" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_14587kr_di" bpmnElement="SequenceFlow_14587kr">
+        <di:waypoint x="627" y="177" />
+        <di:waypoint x="627" y="224" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="592" y="190" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_0ktldb0_di" bpmnElement="TextAnnotation_0ktldb0">
+        <dc:Bounds x="475" y="215" width="100" height="54" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_09n189s_di" bpmnElement="Association_09n189s">
+        <di:waypoint x="609" y="242" />
+        <di:waypoint x="575" y="242" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_08huc6r_di" bpmnElement="SequenceFlow_08huc6r">
+        <di:waypoint x="642" y="233" />
+        <di:waypoint x="664" y="221" />
+        <di:waypoint x="664" y="177" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="642" y="209" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_1e5r3hj_di" bpmnElement="IntermediateCatchEvent_1e5r3hj" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
+        <dc:Bounds x="737" y="119" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="717" y="82" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_01c8cys_di" bpmnElement="SequenceFlow_01c8cys">
+        <di:waypoint x="677" y="137" />
+        <di:waypoint x="737" y="137" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_13wco6m_di" bpmnElement="SequenceFlow_13wco6m">
+        <di:waypoint x="773" y="137" />
+        <di:waypoint x="905" y="137" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1tv26q8_di" bpmnElement="EndEvent_1tv26q8">
+        <dc:Bounds x="905" y="119" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="901" y="162" width="46" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0ggxh1d_di" bpmnElement="ServiceTask_0ggxh1d">
+        <dc:Bounds x="414" y="97" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_10k55nt_di" bpmnElement="SequenceFlow_10k55nt">
+        <di:waypoint x="359" y="137" />
+        <di:waypoint x="414" y="137" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0vs2szd_di" bpmnElement="SequenceFlow_0vs2szd">
+        <di:waypoint x="514" y="137" />
+        <di:waypoint x="577" y="137" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
